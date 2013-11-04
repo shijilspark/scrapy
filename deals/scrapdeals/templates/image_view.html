@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	
+	<script src="http://code.jquery.com/jquery-1.9.0.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/ICanHaz.min.js"></script>
+
+	<script id="deal" type="text/html">
+      <tr>
+      	<td>{{ order }}</td>
+      	<td><img class="img-polaroid" style="width:100px;height:100px;" src="{{ image }}" /></td>
+      	<td><a href="{{ url }}" target="_blank"><span>{{ name }}</span></a></td>
+      	<td><strike>{{ original_price }}</strike></td>
+      	<td>{{ deal_price }}</td>
+      	<td>{{ validity }}</td>
+      	<td>{{ coupon }}</td>
+      </tr>
+</script>
+
+</head>
+<body>
+	<link href="/static/css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+      .alert{
+	      width:275px;
+	      height:auto;
+	      margin:20px;
+	    }
+    </style>
+    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Super Deals</a>
+          <div class="nav-collapse collapse">
+            <!-- <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul> -->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    <div class="container">
+    	<select class="offset9 sort">
+    		<option value="Sort">Sort</option>
+    		<option value="SortByName">Sort By Name</option>
+    		<option value="SortByOriginal">Sort By Original Price</option>
+    		<option value="SortByDeal">Sort By Deal Price</option><!-- 
+    		<option value="SortByDate">Sort By Validity</option> -->
+    	</select>
+		<!-- <div class="table-view">
+			<table class="table">
+				<thead>
+	                <tr>
+	                  <th>#</th>
+	                  <th>Preview</th>
+	                  <th>Item Name</th>
+	                  <th>Original Price</th>
+	                  <th>Deal Price</th>
+	                  <th>Validity</th>
+	                  <th>Coupon</th>
+	                  <th>Discount</th>
+	                </tr>
+	              </thead>
+	              <tbody class="item_data">
+	                
+	              </tbody>
+			</table>
+		</div> -->
+	</div>
+	<div id="container"></div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+	function SortByDeal(x,y) {
+		return x.deal_price - y.deal_price;
+	}
+	function SortByOriginal(x,y) {
+		return x.original_price - y.original_price;
+	}
+	function SortByName(x,y) {
+		return ((x.deal_name == y.deal_name) ? 0 : ((x.deal_name > y.deal_name) ? 1 : -1 ));
+	}
+	function SortByDate(x,y) {
+		return ((x.validity == y.validity) ? 0 : ((x.validity > y.validity) ? 1 : -1 ));
+	}
+	var jqxhr = $.getJSON( "/static/items.json", function(data) {
+		myjson = data
+		// sorted = myjson.sort(SortByDate);
+		// console.log(sorted)
+		// var deal_data, deal;
+		$.each(data, function(key, val) {
+			image = val.image
+			if(val.original_price != ''){
+       				 original_price = 'Rs.'+val.original_price;
+      			}
+      			else{
+        			original_price = ''
+      			}
+      			if(val.deal_price != '')
+      			{
+        			deal_price = 'Rs.'+val.deal_price;
+      			}
+      			else{
+        			deal_price = ''
+      			}
+		//	original_price = 'Rs.'+val.original_price;
+		//	deal_price = 'Rs.'+val.deal_price;
+			console.log(original_price);
+			$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><div style="float: left;margin-left: 44px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')
+      
+      
+      		});
+	});
+	$('.sort').change(function(){
+		name = $('.sort').val();
+		$('#container').empty();
+		var jqxhr = $.getJSON( "/static/items.json", function(data) {
+		myjson = data;
+		if(name === 'SortByName')
+		{
+			sorted = myjson.sort(SortByName);
+		}
+		if(name === 'SortByDate')
+		{
+			sorted = myjson.sort(SortByDate);
+		}
+		if(name === 'SortByOriginal')
+		{
+			sorted = myjson.sort(SortByOriginal);
+		}
+		if(name === 'SortByDeal')
+		{
+			sorted = myjson.sort(SortByDeal);
+		}
+		console.log(sorted)
+		$.each(sorted, function(key, val) {
+			original_price = val.original_price;
+			// console.log(original_price);
+			image = val.image 
+			deal_price = val.deal_price;
+			$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><div style="float: left;margin-left: 55px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')
+      
+      
+      		});
+	});
+		
+	})
+
+</script>
