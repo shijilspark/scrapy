@@ -1,5 +1,10 @@
 # Django settings for deals project.
 import os
+import djcelery
+djcelery.setup_loader()
+
+from celery.schedules import crontab
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -12,11 +17,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'scrapy',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
+        'USER': 'root',
+        'PASSWORD': 'root',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -72,8 +77,10 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    #os.path.join(BASE_DIR, "static"),
-    '/home/ubuntu/superdeals/scrapdeals/static',
+    # os.path.join(BASE_DIR, "static"),
+    BASE_DIR,'..','/scrapdeals/static',
+    # '/home/kishore/scrapy/scrapy/deals/scrapdeals/static/'
+    # '/home/ubuntu/superdeals/scrapdeals/static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -113,7 +120,8 @@ ROOT_URLCONF = 'deals.urls'
 WSGI_APPLICATION = 'deals.wsgi.application'
 
 TEMPLATE_DIRS = (
-    "/home/ubuntu/superdeals/deals/scrapdeals/templates"
+    BASE_DIR,'..','/scrapdeals/templates',
+    # "/home/ubuntu/superdeals/deals/scrapdeals/templates"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -126,7 +134,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions'
+    'django_extensions',
+    'scrapdeals',
+    'djcelery'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -161,3 +171,15 @@ LOGGING = {
         },
     }
 }
+
+BROKER_URL = 'redis://localhost:6379/0'
+
+CELERYBEAT_SCHEDULE = {
+    'mail_every_mid_night': {
+        'task': 'scrapdeals.tasks.news_letter',
+        'schedule': crontab(minute=0, hour=0),
+        'args': (),
+    },
+}
+
+# 

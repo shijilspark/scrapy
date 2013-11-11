@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +55,12 @@
       </div>
     </div>
     <div class="container">
+	    <form action="/subscribe/" method="post"  >
+			{% csrf_token %}
+			<!-- <input type="text" name="email" value="" placeholder="Subscribe with Email" /> -->
+			{{ form.as_p }}
+			<input type="submit" value={{ value }} />
+		</form> 
     	<select class="offset9 sort">
     		<option value="Sort">Sort</option>
     		<option value="SortByName">Sort By Name</option>

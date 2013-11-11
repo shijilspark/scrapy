@@ -128,8 +128,3 @@ class SuperDealsSpider(BaseSpider):
 			indiatimesitem['web_image'] = ''
 			indiatimesitems.append(indiatimesitem)
 		return items + flipitems + infyitems + tradusitems + indiatimesitems
-
-		 
-
-
-
