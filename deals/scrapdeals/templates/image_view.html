@@ -55,12 +55,12 @@
       </div>
     </div>
     <div class="container">
-	    <form action="/subscribe/" method="post"  >
+<!-- 	    <form action="/subscribe/" method="post"  >
 			{% csrf_token %}
-			<!-- <input type="text" name="email" value="" placeholder="Subscribe with Email" /> -->
+			<input type="text" name="email" value="" placeholder="Subscribe with Email" />
 			{{ form.as_p }}
 			<input type="submit" value={{ value }} />
-		</form> 
+		</form>  -->
     	<select class="offset9 sort">
     		<option value="Sort">Sort</option>
     		<option value="SortByName">Sort By Name</option>
@@ -68,6 +68,33 @@
     		<option value="SortByDeal">Sort By Deal Price</option><!-- 
     		<option value="SortByDate">Sort By Validity</option> -->
     	</select>
+    	<div class="container">
+		    <div class="row">
+		        <div class="col-xs-12 col-sm-12 col-md-6">
+		            <div class="panel panel-primary">
+                        <div class="panel-body">                    
+	                        <div class="col-xs-6 col-sm-6 col-md-6 login-box">
+		                        {{ details }}
+	                            <form action="{% url 'auth:auth' %} " role="form" method="POST">
+		                            {% csrf_token %}
+		                            <div class="input-group">
+		                                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+		                                <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+		                            </div>
+		                            <div class="input-group">
+		                                <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+		                                <input type="password" name="password" class="form-control" placeholder="Password" required />
+		                            </div>
+		                            <input type="submit" class="btn btn-labeled btn-success" value="Sign In" />
+                            
+		                            Don't have an account? <a href="{% url 'auth:user' %}">Sign up here</a>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+			</div>
+		</div>
 		<!-- <div class="table-view">
 			<table class="table">
 				<thead>

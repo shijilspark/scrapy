@@ -1,0 +1,59 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Create a new account</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+	<script src="http://code.jquery.com/jquery-1.9.0.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/ICanHaz.min.js"></script>
+</head>
+<body>
+	<link href="/static/css/bootstrap.css" rel="stylesheet">    
+    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <center>
+	<div class="container">
+	    <div class="row">
+	        <div class="col-xs-12 col-sm-12 col-md-4 well well-sm">
+	            <legend><a href="http://www.jquery2dotnet.com"><i class="glyphicon glyphicon-globe"></i></a> Sign up!</legend>
+	            <form action="{% url 'auth:user' %}" method="post" class="form" role="form">
+	            {% csrf_token %}
+	            {{ form.non_field_errors }}
+		            <div class="row">
+		                <div class="fieldWrapper">
+					        {{ form.firstname.errors }}
+					        <label class="form-control" required autofocus for="id_firstname">Firstname: {{ form.firstname }}</label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.lastname.errors }}
+					        <label class="form-control" required autofocus for="id_lastname">Lastname: {{ form.lastname }}</label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.username.errors }}
+					        <label class="form-control" required autofocus for="id_username">Username: {{ form.username }} </label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.phone_no.errors }}
+					        <label class="form-control" required autofocus for="id_phone_no">Phone No: {{ form.phone_no }} </label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.email.errors }}
+					        <label class="form-control" required autofocus for="id_email">Your Email: {{ form.email }}</label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.password.errors }}
+					        <label class="form-control" required autofocus for="id_password">Password: {{ form.password }}</label>
+					    </div>
+					    <div class="fieldWrapper">
+					        {{ form.subscribe.errors }}
+					        <label class="form-control" required autofocus for="id_subscribe">Subscribe for News letter? {{ form.subscribe }}</label>
+					    </div>
+					    <input type="submit" class="btn btn-labeled btn-success" value="Register" />
+	                </div>
+	            </form>
+	        </div>
+	    </div>
+	</div></center>
+
+</body>
+</html>

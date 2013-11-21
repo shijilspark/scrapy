@@ -1,0 +1,194 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+	<script src="http://code.jquery.com/jquery-1.9.0.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/ICanHaz.min.js"></script>
+	<script id="deal" type="text/html">
+      <tr>
+      	<td>{{ order }}</td>
+      	<td><img class="img-polaroid" style="width:100px;height:100px;" src="{{ image }}" /></td>
+      	<td><a href="{{ url }}" target="_blank"><span>{{ name }}</span></a></td>
+      	<td><strike>{{ original_price }}</strike></td>
+      	<td>{{ deal_price }}</td>
+      	<td>{{ validity }}</td>
+      	<td>{{ coupon }}</td>
+      </tr>
+	</script>	 
+	<script type="text/javascript">
+
+	    function addToCart(){
+	    	$(".add_to_cart").on("click", function(e){
+	    		if(e.handled !== true){
+		    		var item_id = $(this).siblings(".hidden_item_id").val();		    		
+		    		var deal_name = $(this).siblings(".hidden_deal_name").val();
+		    		$.ajax({
+		    			url: "/auth/add_to_cart/",
+		    			type: "POST",
+		    			data: {'item_id': item_id, 'deal_name': deal_name},
+		    			success: function(response){
+		    				var id = response.item_id.replace(/[^\w\s]/gi, '')
+		    				console.log(id)
+		    				$("#add_"+id).hide();
+		    				$("#remove_"+id).show();
+		    			}
+		    		});
+		    		e.handled = true;
+		    	}
+	    	});
+	    }
+
+	    function removeFromCart(){
+	    	$(".remove_from_cart").on("click", function(){
+	    		var item_id = $(this).siblings(".hidden_item_id").val();
+	    		var deal_name = $(this).siblings(".hidden_deal_name").val();
+	    		$.ajax({
+	    			url: "/auth/remove_from_cart/",
+	    			type: "POST",
+	    			data: {'item_id': item_id, 'deal_name': deal_name},
+	    			success: function(response){
+			    		var id = response.item_id.replace(/[^\w\s]/gi, '')
+						$("#remove_"+id).hide();
+			            $("#add_"+id).show();
+	    			}
+	    		});
+	    	});
+	    }
+	</script>
+</head>
+<body>
+	<link href="/static/css/bootstrap.css" rel="stylesheet">    
+    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Super Deals</a>          
+          <div class="pull-right">
+            <ul class="nav pull-right">
+	            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome, {{ user }} <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{%url 'auth:wishlist' %}"><i class="icon-cog"></i> Wish List</a></li>
+                        <li class="divider"></li>
+	                    <li><a href="{% url 'auth:logout' %}"><i class="icon-off"></i> Signout</a></li>
+                    </ul>
+	            </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container"><br><br><br>
+    	<select class="offset9 sort">
+    		<option value="Sort">Sort</option>
+    		<option value="SortByName">Sort By Name</option>
+    		<option value="SortByOriginal">Sort By Original Price</option>
+    		<option value="SortByDeal">Sort By Deal Price</option>
+    	</select>		
+	</div>
+	<div id="container"></div>
+
+</body>
+</html>
+<script type="text/javascript">
+	function SortByDeal(x,y) {
+		return x.deal_price - y.deal_price;
+	}
+	function SortByOriginal(x,y) {
+		return x.original_price - y.original_price;
+	}
+	function SortByName(x,y) {
+		return ((x.deal_name == y.deal_name) ? 0 : ((x.deal_name > y.deal_name) ? 1 : -1 ));
+	}
+	function SortByDate(x,y) {
+		return ((x.validity == y.validity) ? 0 : ((x.validity > y.validity) ? 1 : -1 ));
+	}
+	var jqxhr = $.getJSON( "../../static/items.json", function(data) {
+		myjson = data
+		
+		$.each(data, function(key, val) {
+			image = val.image
+			if(val.original_price != ''){
+       				 original_price = 'Rs.'+val.original_price;
+      			}
+      			else{
+        			original_price = ''
+      			}
+      			if(val.deal_price != '')
+      			{
+        			deal_price = 'Rs.'+val.deal_price;
+      			}
+      			else{
+        			deal_price = ''
+      			}
+
+
+			var js_list = '{{ list|safe }}';
+			myData = JSON.parse( js_list );
+			if(myData.indexOf(val.url[0]) > -1){
+				$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><br><button class="add_to_cart btn" id ="add_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="addToCart()" style="display:none;">ADD TO CART</button><br><button class="remove_from_cart" id ="remove_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="removeFromCart()" >REMOVE FROM CART</button><input class="hidden_item_id" value="'+val.url+'" style="display:none;"><input class="hidden_deal_name" value="'+val.deal_name+'" style="display:none;"><div style="float: left;margin-left: 44px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')      
+
+			}else{
+				$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><br><button class="add_to_cart btn" id ="add_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="addToCart()">ADD TO CART</button><br><button class="remove_from_cart" id ="remove_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="removeFromCart()"  style="display:none;">REMOVE FROM CART</button><input class="hidden_item_id" value="'+val.url+'" style="display:none;"><input class="hidden_deal_name" value="'+val.deal_name+'" style="display:none;"><div style="float: left;margin-left: 44px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')      
+
+			}     
+  		});
+	});
+	$('.sort').change(function(){
+		name = $('.sort').val();
+		$('#container').empty();
+		var jqxhr = $.getJSON( "/static/items.json", function(data) {
+		myjson = data;
+		if(name === 'SortByName')
+		{
+			sorted = myjson.sort(SortByName);
+		}
+		if(name === 'SortByDate')
+		{
+			sorted = myjson.sort(SortByDate);
+		}
+		if(name === 'SortByOriginal')
+		{
+			sorted = myjson.sort(SortByOriginal);
+		}
+		if(name === 'SortByDeal')
+		{
+			sorted = myjson.sort(SortByDeal);
+		}
+		$.each(sorted, function(key, val) {
+			
+			image = val.image 
+			if(val.original_price != ''){
+				original_price = 'Rs.'+val.original_price;
+  			}
+  			else{
+    			original_price = ''
+  			}
+  			if(val.deal_price != '')
+  			{
+				deal_price = 'Rs.'+val.deal_price;
+  			}
+  			else{
+    			deal_price = ''
+  			}
+
+  			var js_list = '{{ list|safe }}';
+			myData = JSON.parse( js_list );
+			if(myData.indexOf(val.url[0]) > -1){
+				$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><br><button class="add_to_cart btn" id ="add_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="addToCart()" style="display:none;">ADD TO CART</button><br><button class="remove_from_cart" id ="remove_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="removeFromCart()" >REMOVE FROM CART</button><input class="hidden_item_id" value="'+val.url+'" style="display:none;"><input class="hidden_deal_name" value="'+val.deal_name+'" style="display:none;"><div style="float: left;margin-left: 44px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')      
+
+			}else{
+				$('#container').append('<div class="well span3" style="height: 400px;"><center><h4>'+val.website+'</h4><br/><div><img class="img-polaroid" style="width:200px;height:200px;" src='+image+'><br><button class="add_to_cart btn" id ="add_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="addToCart()">ADD TO CART</button><br><button class="remove_from_cart" id ="remove_'+val.url[0].replace(/[^\w\s]/gi, '')+'" onclick="removeFromCart()"  style="display:none;">REMOVE FROM CART</button><input class="hidden_item_id" value="'+val.url+'" style="display:none;"><input class="hidden_deal_name" value="'+val.deal_name+'" style="display:none;"><div style="float: left;margin-left: 44px;"><h3>'+deal_price+'</h3></div><div style="float: right;margin-right: 55px;margin-top: 20px;"><strike>'+original_price+'</strike></div></div></center><div style="clear:both"><a href='+val.url+' target="_blank"><span>'+val.deal_name+'</span></a></div></div>')
+			}      
+  		});
+	});		
+	})
+
+</script>
+

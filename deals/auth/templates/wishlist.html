@@ -1,0 +1,82 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Wishlist</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+	<script src="http://code.jquery.com/jquery-1.9.0.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/ICanHaz.min.js"></script>
+	<script type="text/javascript">
+	    
+	    function deleteItem(){	
+			$( ".table tr.data" ).on( "click", function() {
+				var deal_name = $(this).text();
+	            var item_id = $('a',this).attr("href");	         
+	            $.ajax({
+	    			url: "/auth/remove_from_cart/",
+	    			type: "POST",
+	    			data: {'item_id': item_id, 'deal_name': deal_name},
+	    			success: function(response){
+	    				window.location.reload(true);
+	    			}
+	    		});	    		           
+		    });		    
+ 	    }
+	</script>
+</head>
+<body>
+	<link href="/static/css/bootstrap.css" rel="stylesheet">    
+    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Super Deals</a>          
+          <div class="pull-right">
+                <ul class="nav pull-right">
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome, {{ user }} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{%url 'auth:auth' %}"><i class="icon-home"></i> Home</a></li>
+                            <li class="divider"></li>
+                            <li><a href="{% url 'auth:logout' %}"><i class="icon-off"></i> Signout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container"><br><br><br>    
+		<div class="well">		
+		    <table class="table">
+		      <thead>
+		        <tr>
+		          <th>#</th>
+		          <th>Deal Name</th>
+		          <th>Delete</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+			      {% if list %}
+				    {% for i in list%}
+			        <tr class="data">
+				        <td >{{forloop.counter}}</td>
+				        <td ><a class="addr" href="{{i.wishlist}}" target="_blank">{{i.deal_name|truncatechars:"50"}}</a></td>
+				        <td ><button onclick="deleteItem()"><i class="icon-remove"></i></button></td>
+			        </tr>
+		            {% endfor %}
+		            {% else %}
+		            <tr><td></td>
+		            <td>Nothing in Your wishlist <a class="addr" href="{%url 'auth:auth' %}" target="_blank">Click here</a> to add more..</td></tr>
+				   {% endif %}
+		      </tbody>
+		    </table>
+		</div>
+    </div>
+</body>
+</html>
